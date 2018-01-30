@@ -1,0 +1,11 @@
+## Interface: 50400
+## Title: OnlyUISounds
+## Version: 1.0.180126
+## Notes: Only hear UI sounds.
+## Author: Cyprias
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: true
+## SavedVariables: OnlyUISounds_DB
+
+core.lua
+options.lua
