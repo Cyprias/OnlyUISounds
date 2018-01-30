@@ -4,7 +4,6 @@
 	License:    MIT License	(http://opensource.org/licenses/MIT)
 **********************************************************************************]]
 
-
 local folder, core = ...
 _G._OUIS = core
 
@@ -17,20 +16,15 @@ LibStub("AceAddon-3.0"):NewAddon(core, folder, "AceConsole-3.0", "AceHook-3.0")
 
 core.defaultSettings = {}
 
-do
-	local OnInitialize = core.OnInitialize
-	function core:OnInitialize()
-		if OnInitialize then OnInitialize(self) end
-		self.db = LibStub("AceDB-3.0"):New("OnlyUISounds_DB", self.defaultSettings, true) --'Default'
+function core:OnInitialize()
+	self.db = LibStub("AceDB-3.0"):New("OnlyUISounds_DB", self.defaultSettings, true) --'Default'
 
-		self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
-		self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
-		self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
-		self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileChanged")
-		
-		self:RegisterChatCommand("ouis", "ChatCommand");
-
-	end
+	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
+	self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+	self.db.RegisterCallback(self, "OnProfileDeleted", "OnProfileChanged")
+	
+	self:RegisterChatCommand("ouis", "ChatCommand");
 end
 
 function core:ChatCommand(input)
@@ -39,10 +33,8 @@ function core:ChatCommand(input)
 	end
 end
 
-do
-	function core:OpenOptionsFrame()
-		LibStub("AceConfigDialog-3.0"):Open(core.title)
-	end
+function core:OpenOptionsFrame()
+	LibStub("AceConfigDialog-3.0"):Open(core.title)
 end
 
 function core:OnProfileChanged(...)	
@@ -52,14 +44,14 @@ end
 
 do 
 	function core:OnEnable()
-		self:RawHook("PlaySound", true)
+		self:SecureHook("PlaySound", "PlaySound");
+		self:SecureHook("PlaySoundFile", "PlaySoundFile");
+		self:SecureHook("PlaySoundKitID", "PlaySoundKitID");
 	end
 end
 
-do
-	function core:OnDisable(...)
-	end
-end
+-- function core:OnDisable(...)
+-- end
 
 function core:dump_table(o)
    if type(o) == 'table' then
@@ -74,9 +66,8 @@ function core:dump_table(o)
    end
 end
 
-local strWhiteBar		= "|cffffff00 || |r" -- a white bar to seperate the debug info.
-local echo
 do
+	local strWhiteBar		= "|cffffff00 || |r" -- a white bar to seperate the debug info.
 	local colouredName		= "|cff008000oUIs:|r "
 
 	local tostring = tostring
@@ -128,8 +119,40 @@ do
 end
 
 do
+	local PlaySound = PlaySound;
+	local lastSound;
 	function core:PlaySound(sound, soundChannel)
-		core.Debug("PlaySound", "<PlaySound> " .. tostring(sound) .. " " .. tostring(soundChannel));
-		self.hooks.PlaySound(sound, "master")
+		core:Debug("<PlaySound> " .. tostring(sound) .. " " .. tostring(soundChannel));
+		-- RawHooking taints the execution of some functions, 
+		-- but SecureHook and calling PlaySound again with our own soundChannel does not. 
+		-- So lazy fix.
+		if (soundChannel ~= "master" and sound ~= lastSound) then
+			lastSound = sound;
+			PlaySound(sound, "master");
+		end
+	end	
+end
+
+do
+	local PlaySoundFile = PlaySoundFile;
+	local lastSound;
+	function core:PlaySoundFile(sound, soundChannel)
+		core:Debug("<PlaySoundFile> " .. tostring(sound) .. " " .. tostring(soundChannel));
+		if (soundChannel ~= "master" and sound ~= lastSound) then
+			lastSound = sound;
+			PlaySoundFile(sound, "master");
+		end
+	end	
+end
+
+do
+	local PlaySoundKitID = PlaySoundKitID;
+	local lastSound;
+	function core:PlaySoundKitID(sound, soundChannel)
+		core:Debug("<PlaySoundKitID> " .. tostring(sound) .. " " .. tostring(soundChannel));
+		if (soundChannel ~= "master") then
+		--	lastSound = sound;
+			PlaySoundKitID(sound, "master");
+		end
 	end	
 end

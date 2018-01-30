@@ -6,6 +6,7 @@
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: true
 ## SavedVariables: OnlyUISounds_DB
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, Blizzard_PVPUI
 
 core.lua
 options.lua
