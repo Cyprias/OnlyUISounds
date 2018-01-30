@@ -45,7 +45,7 @@ end
 do 
 	function core:OnEnable()
 		self:SecureHook("PlaySound", "PlaySound");
-		self:SecureHook("PlaySoundFile", "PlaySoundFile");
+		--self:SecureHook("PlaySoundFile", "PlaySoundFile");
 		self:SecureHook("PlaySoundKitID", "PlaySoundKitID");
 	end
 end
@@ -120,14 +120,13 @@ end
 
 do
 	local PlaySound = PlaySound;
-	local lastSound;
 	function core:PlaySound(sound, soundChannel)
+		if (GetCVar("Sound_EnableSFX") == "1") then return; end
 		core:Debug("<PlaySound> " .. tostring(sound) .. " " .. tostring(soundChannel));
 		-- RawHooking taints the execution of some functions, 
 		-- but SecureHook and calling PlaySound again with our own soundChannel does not. 
 		-- So lazy fix.
-		if (soundChannel ~= "master" and sound ~= lastSound) then
-			lastSound = sound;
+		if (soundChannel ~= "master") then
 			PlaySound(sound, "master");
 		end
 	end	
@@ -135,11 +134,10 @@ end
 
 do
 	local PlaySoundFile = PlaySoundFile;
-	local lastSound;
 	function core:PlaySoundFile(sound, soundChannel)
+		if (GetCVar("Sound_EnableSFX") == "1") then return; end
 		core:Debug("<PlaySoundFile> " .. tostring(sound) .. " " .. tostring(soundChannel));
-		if (soundChannel ~= "master" and sound ~= lastSound) then
-			lastSound = sound;
+		if (soundChannel ~= "master") then
 			PlaySoundFile(sound, "master");
 		end
 	end	
@@ -147,11 +145,10 @@ end
 
 do
 	local PlaySoundKitID = PlaySoundKitID;
-	local lastSound;
 	function core:PlaySoundKitID(sound, soundChannel)
+		if (GetCVar("Sound_EnableSFX") == "1") then return; end
 		core:Debug("<PlaySoundKitID> " .. tostring(sound) .. " " .. tostring(soundChannel));
 		if (soundChannel ~= "master") then
-		--	lastSound = sound;
 			PlaySoundKitID(sound, "master");
 		end
 	end	
